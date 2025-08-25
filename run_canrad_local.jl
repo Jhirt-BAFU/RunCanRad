@@ -43,9 +43,13 @@ tile_size = 1000        # Tile size in meters (must match the value in prep_clus
 sub_tile_size = 100     # Subtile size in meters (must evenly divide tile_size; used to reduce RAM usage)
 
 # === Directory paths ===
-output_path = "C:/Users/Z70AJHI/project/RunCanRad/output"
-input_path = "W:/GIS/Projekte/Wald/Projekte/2025_LFI_CanRad/input"
-settings_path = "C:/Users/Z70AJHI/project/RunCanRad"
+#output_path = "C:/Users/Z70AJHI/project/RunCanRad/output"
+#input_path = "W:/GIS/Projekte/Wald/Projekte/2025_LFI_CanRad/input"
+#settings_path = "C:/Users/Z70AJHI/project/RunCanRad"
+
+output_path = "C:/Users/joshu/Documents/BAFU/RunCanRad/output"
+input_path = "C:/Users/joshu/Documents/BAFU/input"
+settings_path = "C:/Users/joshu/Documents/BAFU/RunCanRad"
 
 output_folder_name = "output_" * batch
 output_folder = joinpath(output_path, output_folder_name)

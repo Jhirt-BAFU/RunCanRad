@@ -28,8 +28,8 @@ import xarray as xr
 from rasterio.transform import from_origin
 
 # --- Constants: Input and Output base directories ---
-INPUT_PATH = r'W:\CanRad_Euler\02_collated_tiles'
-OUTPUT_PATH = r'W:\CanRad_Euler\03_converted_tiles'
+INPUT_PATH = r'C:/Users/joshu/Documents/BAFU/RunCanRad/output_collate'
+OUTPUT_PATH = r'C:/Users/joshu/Documents/BAFU/RunCanRad/output_convert'
 
 
 def convert_tiles(input_file: str, output_folder: str) -> None:

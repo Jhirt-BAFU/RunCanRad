@@ -59,17 +59,17 @@ end
 # ---------------------- Main Execution ----------------------
 
 # Get batch argument from command line
-batch_tile = "GRENZ" #ARGS[1]
+batch_tile = "ZH" #ARGS[1]
 
 # Constants
 const TILESIZE = 1000
 const PT_SPACING = 5
 
 # Paths
-input_path    = "E:/canrad_output/local/01_calculated_tiles"
-model_path    = "E:/canrad_data/model"
-settings_path = "E:/canrad_data/settings/local"
-output_path   = "E:/canrad_output/local/02_collated_tiles"
+input_path    = "C:/Users/joshu/Documents/BAFU/RunCanRad/output"
+model_path    = "C:/Users/joshu/Documents/BAFU/input"
+settings_path = "C:/Users/joshu/Documents/BAFU/RunCanRad"
+output_path   = "C:/Users/joshu/Documents/BAFU/RunCanRad/output_collate"
 
 # File and folder names
 input_folder_name   = "output_" * batch_tile

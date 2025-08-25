@@ -30,8 +30,8 @@ from rasterio.io import DatasetReader
 from rasterio.merge import merge
 
 # --- Constants: Input and Output base directories ---
-DEFAULT_INPUT_PATH = r'W:\CanRad_Euler\03_converted_tiles'
-DEFAULT_OUTPUT_PATH = r'W:\CanRad_Euler\04_stuck_tiles'
+DEFAULT_INPUT_PATH = r'C:/Users/joshu/Documents/BAFU/RunCanRad/output_convert'
+DEFAULT_OUTPUT_PATH = r'C:/Users/joshu/Documents/BAFU/RunCanRad/output_stick'
 
 
 def stick_tiles_together(all_tiles: List[DatasetReader], meta: dict, descriptions, batch_tile: str, output_folder: str) -> None:
