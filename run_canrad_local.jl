@@ -32,14 +32,19 @@
 ################################################################################
 using DelimitedFiles
 using CanRad, SpatialFileIO, Formatting, NCDatasets
+using Profile, ProfileView, StatProfilerHTML
 
+Profile.clear()
+
+Profile.init(n = 10^7)
+@profilehtml begin
 # === Input arguments from command line ===
 batch = "ZH" #ARGS[1]
-job_start = 1 # parse(Int, ARGS[2])  # Index of the first job to process
-job_end = 1 #parse(Int, ARGS[3])    # Index of the last job to process
+job_start = 2    # parse(Int, ARGS[2])  # Index of the first job to process
+job_end = 2 #parse(Int, ARGS[3])    # Index of the last job to process
 
 # === Configuration ===
-tile_size = 1000        # Tile size in meters (must match the value in prep_cluster_input.jl)
+tile_size = 100        # Tile size in meters (must match the value in prep_cluster_input.jl)
 sub_tile_size = 100     # Subtile size in meters (must evenly divide tile_size; used to reduce RAM usage)
 
 # === Directory paths ===
@@ -164,3 +169,7 @@ for job_idx in job_start:job_end
         end
     end
 end
+end #profile end
+
+ProfileView.view()
+statprofilehtml()

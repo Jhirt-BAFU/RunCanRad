@@ -16,9 +16,9 @@ function S2R_Settings()
     "coor_system" => "CH1903+",
 
     # shis for calculation
-    "SHI_summer"    => true,
+    "SHI_summer"    => false,
     "SHI_winter"    => false,
-    "SHI_terrain"   => true,
+    "SHI_terrain"   => false,
     "SHI_evergreen" => false,
 
     # run settings

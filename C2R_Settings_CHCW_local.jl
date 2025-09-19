@@ -21,7 +21,7 @@ function C2R_Settings(datfolder)
     "trunks"       => false,
     
     # calculation settings
-    "calc_trans" => true,
+    "calc_trans" => false,
     "calc_swr"   => 0, # 0 = off; 1 = potential swr (atm_trans = 1)
 
     "t1"    => "01.01.2020 00:00:00", # "dd.mm.yyyy HH:MM:SS"
@@ -37,10 +37,10 @@ function C2R_Settings(datfolder)
 
     # run settings
     "batch"        => true, # running in parallel or single process
-    "save_images"  => true,
+    "save_images"  => false,
     "make_pngs"    => false,
     "save_horizon" => false, # save the calculated terrain horizon line  
-    "progress"     => false # save progress of each calculation step
+    "progress"     => true # save progress of each calculation step
     )
 
     dat_in = Dict(
