@@ -40,8 +40,8 @@ Profile.init(n = 10^7)
 @profilehtml begin
 # === Input arguments from command line ===
 batch = "ZH" #ARGS[1]
-job_start = 2    # parse(Int, ARGS[2])  # Index of the first job to process
-job_end = 2 #parse(Int, ARGS[3])    # Index of the last job to process
+job_start = 3    # parse(Int, ARGS[2])  # Index of the first job to process
+job_end = 3 #parse(Int, ARGS[3])    # Index of the last job to process
 
 # === Configuration ===
 tile_size = 100        # Tile size in meters (must match the value in prep_cluster_input.jl)
