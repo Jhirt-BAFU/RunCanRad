@@ -36,15 +36,15 @@ using Profile, ProfileView, StatProfilerHTML
 
 Profile.clear()
 
-Profile.init(n = 10^7)
+Profile.init(n = 10^8)
 @profilehtml begin
 # === Input arguments from command line ===
 batch = "ZH" #ARGS[1]
-job_start = 3    # parse(Int, ARGS[2])  # Index of the first job to process
-job_end = 3 #parse(Int, ARGS[3])    # Index of the last job to process
+job_start = 1    # parse(Int, ARGS[2])  # Index of the first job to process
+job_end = 1 #parse(Int, ARGS[3])    # Index of the last job to process
 
 # === Configuration ===
-tile_size = 100        # Tile size in meters (must match the value in prep_cluster_input.jl)
+tile_size = 1000       # Tile size in meters (must match the value in prep_cluster_input.jl)
 sub_tile_size = 100     # Subtile size in meters (must evenly divide tile_size; used to reduce RAM usage)
 
 # === Directory paths ===
@@ -110,7 +110,9 @@ for job_idx in job_start:job_end
             dim = Int(tile_size / sub_tile_size)
 
             # === Process all subtiles within the current tile ===
-            for x in 1:dim, y in 1:dim
+            # x=4 y=1
+            x = 5
+            y = 1
                 idx = (limx[x] .<= pts_all[:, 1] .< limx[x+1]) .& (limy[y] .<= pts_all[:, 2] .< limy[y+1])
 
                 if sum(idx) > 0
@@ -138,7 +140,6 @@ for job_idx in job_start:job_end
                         println("Already completed: " * taskID)
                     end
                 end
-            end
 
             # === Mark tile as temporarily completed ===
             mkpath(progress_temp_folder)
@@ -172,4 +173,3 @@ end
 end #profile end
 
 ProfileView.view()
-statprofilehtml()
