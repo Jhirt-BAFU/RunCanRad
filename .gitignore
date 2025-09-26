@@ -1,3 +1,4 @@
 output/*
 statprof/*
 Benchmark.txt
+*.pb.gz
