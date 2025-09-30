@@ -9,7 +9,7 @@ using Base.Threads
 # === Directory paths ===
 output_path = "/mnt/output"
 input_path = "/mnt/input"
-settings_path = "/mnt/input"
+settings_path = ".."
 
 output_folder_name = "profiling"
 output_folder = joinpath(output_path, output_folder_name)
@@ -42,6 +42,8 @@ par_in_shi = S2R_Settings()
 par_in["make_geotiff"] = false
 tile_size = 5        # Tile size in meters
 sub_tile_size = 5     # Subtile size in meters (must evenly divide tile_size; used to reduce RAM usage)
+
+par_in["calc_trans"] = false
 
 #tile_name = "2670000_1261000"
 tile_name = "2669420_1250090"
@@ -101,40 +103,17 @@ tile_name = "2669420_1250090"
                         # If all points are terrain (value 2), use ter2rad!
                         if sum(pts[:, 3]) == size(pts, 1) * 2
                             @info "ter2rad! " * taskID
-
-# generate shi png
-par_in["save_images"] = true
-par_in["make_pngs"] = true
-b1 = @benchmark			    ter2rad!($pts, $dat_in, $par_in, $outdir, $taskID)
-io = IOContext(stdout)
-show(io, MIME("text/plain"), b1)
-
-# disable shi png
-par_in["save_images"] = false
-par_in["make_pngs"] = false
-
-# profile allocs
-Profile.Allocs.clear()
-Profile.Allocs.@profile sample_rate=1                            ter2rad!(pts, dat_in, par_in, outdir, taskID)
-#PProf.Allocs.pprof(from_c=false)
-PProf.Allocs.pprof()
-@info "PROFILE ALLOCS - press enter to continue"
-readline()
-
-# profile runtime
-Profile.clear()
-Profile.@profile                            ter2rad!(pts, dat_in, par_in, outdir, taskID)
-PProf.pprof()
-@info "PROFILE RUNTIME - press enter to continue"
-readline()
+			    func! = ter2rad!
                         else
                             @info "chm2rad! " * taskID
+			    func! = chm2rad!
+			end
+
 # generate shi png
 par_in["save_images"] = true
 par_in["make_pngs"] = true
-b2 = @benchmark			    chm2rad!($pts, $dat_in, $par_in, $outdir, $taskID)
-io = IOContext(stdout)
-show(io, MIME("text/plain"), b2)
+b1 = @benchmark			    $func!($pts, $dat_in, $par_in, $outdir, $taskID)
+display(b1)
 
 # disable shi png
 par_in["save_images"] = false
@@ -142,7 +121,7 @@ par_in["make_pngs"] = false
 
 # profile allocs
 Profile.Allocs.clear()
-Profile.Allocs.@profile sample_rate=1                            chm2rad!(pts, dat_in, par_in, outdir, taskID)
+Profile.Allocs.@profile sample_rate=1                            func!(pts, dat_in, par_in, outdir, taskID)
 #PProf.Allocs.pprof(from_c=false)
 PProf.Allocs.pprof()
 @info "PROFILE ALLOCS - press enter to continue"
@@ -150,11 +129,10 @@ readline()
 
 # profile runtime
 Profile.clear()
-Profile.@profile                            chm2rad!(pts, dat_in, par_in, outdir, taskID)
+Profile.@profile                            func!(pts, dat_in, par_in, outdir, taskID)
 PProf.pprof()
 @info "PROFILE RUNTIME - press enter to continue"
 readline()
-                        end
 
                         # Remove temporary radiation file after computation
                         shi_file = joinpath(outdir, tilestr, "SHIs_" * tilestr * ".nc")

@@ -2,7 +2,6 @@
 using Profile, PProf, BenchmarkTools
 ###
 using CanRad, Parameters
-using Base.Threads
 
 # === Directory paths ===
 outdir = "/mnt/output/profiling"
@@ -16,29 +15,15 @@ dat_in, par_in = C2R_Settings(input_path)
 par_in["calc_trans"] = false
 
 #par_in["terrain_highres"] = false
-par_in["lowres_peri"] = 3000
+#par_in["lowres_peri"] = 3000
 #par_in["terrain_lowres"] = false
 pts = [
-  2669722.5 1249652.5 2.0;
-  2669722.5 1249657.5 2.0;
-  2669722.5 1249662.5 2.0;
-  2669722.5 1249667.5 2.0;
-  2669727.5 1249652.5 2.0;
-  2669727.5 1249657.5 2.0;
-  2669727.5 1249662.5 2.0;
-  2669727.5 1249667.5 2.0;
-  2669732.5 1249652.5 2.0;
-  2669732.5 1249657.5 2.0;
-  2669732.5 1249662.5 2.0;
-  2669732.5 1249667.5 2.0;
-  2669737.5 1249652.5 2.0;
-  2669737.5 1249657.5 2.0;
-  2669737.5 1249662.5 2.0;
-  2669737.5 1249667.5 2.0;
+  2669722.5 1249652.5;
 ]
 print("pts: "); println(pts)
 
 # generate shi png
+#par_in["save_horizon"] = true
 par_in["save_images"] = true
 par_in["make_pngs"] = true
 
@@ -64,7 +49,7 @@ par_in["make_pngs"] = true
 
     outstr = splitpath(outdir)[end-1]
 
-    dataset = CanRad.createfiles_terrain(outdir,outstr,pts,calc_trans,calc_swr)
+#    dataset = CanRad.createfiles_terrain(outdir,outstr,pts,calc_trans,calc_swr)
 
     save_images && (images = CanRad.create_exmat_terrain(outdir,outstr,pts,canrad.mat2ev))
 
@@ -128,17 +113,31 @@ par_in["make_pngs"] = true
     end
 
     ###############################################################################
-    # > Loop through the points
+    # process the first point only - instead of looping through all the pts points
+    #    @simd for crx = 1:size(pts_x,1)
+    crx = 1 # unloop
 
-#b1 = @benchmark     for crx = 1:size(pts_x,1)
-#b1 = @benchmark     Threads.@threads for crx = 1:size(pts_x,1)
-b1 = @benchmark     @simd for crx = 1:size(pts_x,1)
 
         # get the high-res local terrain
         if !isempty(dtm_x) && terrain_highres
 
-            pt_dtm_x, pt_dtm_y, pt_dtm_z = getsurfdat(copy(dtm_x),copy(dtm_y),copy(dtm_z),pts_x[crx],pts_y[crx],pts_e[crx],highres_peri);
-            pt_dtm_x, pt_dtm_y = pcd2pol2cart!(ter2rad,pt_dtm_x, pt_dtm_y, pt_dtm_z,pts_x[crx],pts_y[crx],pts_e[crx],"terrain",rbins_dtm,image_height)
+###################################
+## benchmark highres
+@info "highres: radius "*string(highres_peri)*"m"
+@info string(length(dtm_x))*" points within bbox"
+@info minimum(dtm_x), maximum(dtm_x), minimum(dtm_y), maximum(dtm_y), minimum(dtm_z), maximum(dtm_z)
+            pt_dtm_x0, pt_dtm_y0, pt_dtm_z0 = getsurfdat(copy(dtm_x),copy(dtm_y),copy(dtm_z),pts_x[crx],pts_y[crx],pts_e[crx],highres_peri);
+@info string(length(pt_dtm_x0))*" points within 3d radius (<pi/4)"
+@info minimum(pt_dtm_x0), maximum(pt_dtm_x0), minimum(pt_dtm_y0), maximum(pt_dtm_y0), minimum(pt_dtm_z0), maximum(pt_dtm_z0)
+            pt_dtm_x, pt_dtm_y = pcd2pol2cart!(ter2rad,copy(pt_dtm_x0), copy(pt_dtm_y0), copy(pt_dtm_z0),pts_x[crx],pts_y[crx],pts_e[crx],"terrain",rbins_dtm,image_height)
+b1 = @benchmark            pt_dtm_x, pt_dtm_y = pcd2pol2cart!($ter2rad,copy($pt_dtm_x0), copy($pt_dtm_y0), copy($pt_dtm_z0),$pts_x[$crx],$pts_y[$crx],$pts_e[$crx],"terrain",$rbins_dtm,$image_height)
+@info string(length(pt_dtm_x))*" resulting points in azimuthal equidistant projection"
+@info minimum(pt_dtm_x), maximum(pt_dtm_x), minimum(pt_dtm_y), maximum(pt_dtm_y)
+dtm_mintht = copy(ter2rad.mintht[ter2rad.dx1:ter2rad.dx2-1])
+@info string(length(dtm_mintht))*" results on horizon line"
+@info minimum(dtm_mintht), maximum(dtm_mintht)
+display(b1); println()
+###################################
 
             if save_horizon
                 dtm_mintht = copy(ter2rad.mintht[ter2rad.dx1:ter2rad.dx2-1])
@@ -149,8 +148,24 @@ b1 = @benchmark     @simd for crx = 1:size(pts_x,1)
         # get the low-res regional terrain
         if terrain_lowres
 
-            pt_dem_x, pt_dem_y, pt_dem_z = getsurfdat(copy(dem_x),copy(dem_y),copy(dem_z),pts_x[crx],pts_y[crx],pts_e_dem[crx],lowres_peri);
-            pt_dem_x, pt_dem_y = pcd2pol2cart!(ter2rad,pt_dem_x, pt_dem_y, pt_dem_z,pts_x[crx],pts_y[crx],pts_e_dem[crx],"terrain",rbins_dem,image_height);
+###################################
+## benchmark lowres
+@info "lowres: radius "*string(lowres_peri)*"m"
+@info string(length(dem_x))*" points within bbox"
+@info minimum(dem_x), maximum(dem_x), minimum(dem_y), maximum(dem_y), minimum(dem_z), maximum(dem_z)
+            pt_dem_x0, pt_dem_y0, pt_dem_z0 = getsurfdat(copy(dem_x),copy(dem_y),copy(dem_z),pts_x[crx],pts_y[crx],pts_e_dem[crx],lowres_peri)
+@info string(length(pt_dem_x0))*" points within 3d radius (<pi/4)"
+@info minimum(pt_dem_x0), maximum(pt_dem_x0), minimum(pt_dem_y0), maximum(pt_dem_y0), minimum(pt_dem_z0), maximum(pt_dem_z0)
+            pt_dem_x, pt_dem_y = pcd2pol2cart!(ter2rad,copy(pt_dem_x0), copy(pt_dem_y0), copy(pt_dem_z0),pts_x[crx],pts_y[crx],pts_e_dem[crx],"terrain",rbins_dem,image_height)
+b2 = @benchmark            pt_dem_x, pt_dem_y = pcd2pol2cart!($ter2rad,copy($pt_dem_x0), copy($pt_dem_y0), copy($pt_dem_z0),$pts_x[$crx],$pts_y[$crx],$pts_e_dem[$crx],"terrain",$rbins_dem,$image_height)
+@info string(length(pt_dem_x))*" resulting points in azimuthal equidistant projection"
+@info minimum(pt_dem_x), maximum(pt_dem_x), minimum(pt_dem_y), maximum(pt_dem_y)
+dem_mintht = copy(ter2rad.mintht[ter2rad.dx1:ter2rad.dx2-1])
+@info string(length(dem_mintht))*" results on horizon line"
+@info minimum(dem_mintht), maximum(dem_mintht)
+display(b2); println()
+
+###################################
 
             if save_horizon
                 if !isempty(dtm_x) && terrain_highres
@@ -182,23 +197,36 @@ b1 = @benchmark     @simd for crx = 1:size(pts_x,1)
         # calculate svf and transmissivity
         svf_p, svf_h = calc_svf(canrad,mat2ev)
 
-        dataset["svf_planar_t"][crx] = Int8(round(svf_p*100));
-        dataset["svf_hemi_t"][crx]   = Int8(round(svf_h*100));
+#        dataset["svf_planar_t"][crx] = Int8(round(svf_p*100));
+#        dataset["svf_hemi_t"][crx]   = Int8(round(svf_h*100));
 
-    end
+    #    end
 
 
 ###################################
-# clean up
-
-    close(dataset)
+## clean up
+#    close(dataset)
     save_images && close(images)
     save_horizon && close(hlm)
 
     (save_images && make_pngs) && make_SHIs(outdir,"none","none",true)
 
+
+###################################
+## profiling
+
+# profile allocs
+Profile.Allocs.clear()
+Profile.Allocs.@profile sample_rate=1 pt_dem_x, pt_dem_y = pcd2pol2cart!(ter2rad,copy(pt_dem_x0), copy(pt_dem_y0), copy(pt_dem_z0),pts_x[crx],pts_y[crx],pts_e_dem[crx],"terrain",rbins_dem,image_height)
+#PProf.Allocs.pprof(from_c=false)
+PProf.Allocs.pprof()
+@info "PROFILE ALLOCS - press enter to continue" ; readline()
+
+# profile runtime
+Profile.clear()
+Profile.@profile pt_dem_x, pt_dem_y = pcd2pol2cart!(ter2rad,copy(pt_dem_x0), copy(pt_dem_y0), copy(pt_dem_z0),pts_x[crx],pts_y[crx],pts_e_dem[crx],"terrain",rbins_dem,image_height)
+PProf.pprof()
+@info "PROFILE RUNTIME - press enter to continue" ; readline()
 ###################################
 
 println("completed")
-
-display(b1)
