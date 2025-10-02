@@ -1,7 +1,7 @@
 ### profile pcd2pol2cart
 using Profile, PProf, BenchmarkTools
 ###
-using CanRad, Parameters
+using CanRad, Parameters, NearestNeighbors
 using Base.Threads
 
 # === Directory paths ===
@@ -118,7 +118,7 @@ par_in["make_pngs"] = true
     g_coorcrt .= ((g_coorcrt .- radius) ./ radius) .* 90
 
     # make g_coorcrt a KDtree for easy look up
-    kdtree = scipyspat.cKDTree(g_coorcrt)
+    kdtree = KDTree(g_coorcrt')
 
     @unpack ring_radius, ring_tht, surf_area_p, surf_area_h, relevant_pix = canrad
     for rix = 1:1:size(ring_radius,1)-1
