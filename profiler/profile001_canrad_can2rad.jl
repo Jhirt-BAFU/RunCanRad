@@ -1,7 +1,7 @@
 ### profile canrad at one camera location
 using Profile, PProf, BenchmarkTools
 ###
-using CanRad
+using CanRad, Base.Threads
 
 # === Directory paths ===
 outdir = "/mnt/output/profiling"
@@ -15,7 +15,25 @@ dat_in, par_in = C2R_Settings(input_path)
 par_in["calc_trans"] = false
 par_in["batch"] = false ; taskID = "task"
 par_in["make_geotiff"] = false
-pts = [2669722.5 1249652.5 2.0]
+pts = [
+  2669722.5 1249652.5 2.0;
+  2669722.5 1249657.5 2.0;
+  2669722.5 1249662.5 2.0;
+  2669722.5 1249667.5 2.0;
+  2669727.5 1249652.5 2.0;
+  2669727.5 1249657.5 2.0;
+  2669727.5 1249662.5 2.0;
+  2669727.5 1249667.5 2.0;
+  2669732.5 1249652.5 2.0;
+  2669732.5 1249657.5 2.0;
+  2669732.5 1249662.5 2.0;
+  2669732.5 1249667.5 2.0;
+  2669737.5 1249652.5 2.0;
+  2669737.5 1249657.5 2.0;
+  2669737.5 1249662.5 2.0;
+  2669737.5 1249667.5 2.0;
+][1:nthreads(),:]
+
 par_in["terrain_highres"] = false
 par_in["lowres_peri"] = 3000
 #par_in["terrain_lowres"] = false

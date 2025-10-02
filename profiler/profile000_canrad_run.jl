@@ -39,9 +39,15 @@ par_in_shi = S2R_Settings()
 #tile_size = 10        # Tile size in meters
 #sub_tile_size = 10     # Subtile size in meters (must evenly divide tile_size; used to reduce RAM usage)
 
-par_in["make_geotiff"] = false
-tile_size = 5        # Tile size in meters
-sub_tile_size = 5     # Subtile size in meters (must evenly divide tile_size; used to reduce RAM usage)
+#par_in["make_geotiff"] = false
+#tile_size = 5        # Tile size in meters
+#sub_tile_size = 5     # Subtile size in meters (must evenly divide tile_size; used to reduce RAM usage)
+
+# set (sub) tile size according to number of threads ( 1 thread => 5 , 4 threads => 10, 9 threads => 15, ...)
+tile_size = 5 * Int(ceil(sqrt(nthreads())))
+sub_tile_size = tile_size
+# make geotiff if subtiles > 5
+par_in["make_geotiff"] = sub_tile_size > 5 ? true : false
 
 par_in["calc_trans"] = false
 

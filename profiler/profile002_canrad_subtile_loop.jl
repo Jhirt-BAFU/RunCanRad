@@ -131,8 +131,9 @@ par_in["make_pngs"] = true
     # > Loop through the points
 
 #b1 = @benchmark     for crx = 1:size(pts_x,1)
-#b1 = @benchmark     Threads.@threads for crx = 1:size(pts_x,1)
-b1 = @benchmark     @simd for crx = 1:size(pts_x,1)
+#b1 = @benchmark     @simd for crx = 1:size(pts_x,1)
+@info "using "*string(nthreads())*" threads"
+b1 = @benchmark     Threads.@threads for crx = 1:size(pts_x,1)
 
         # get the high-res local terrain
         if !isempty(dtm_x) && terrain_highres
